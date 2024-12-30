@@ -66,11 +66,17 @@
                  (service openssh-service-type)
                  (service cups-service-type)
                  (set-xorg-configuration
-                  (xorg-configuration (keyboard-layout keyboard-layout))))
+                  (xorg-configuration (keyboard-layout keyboard-layout)))
+                 ;; Networking stuff
+                 (service dhcp-client-service-type)
+                 (wpa-supplicant-service-type config =>
+                   (wpa-supplicant-configuration
+                    (interface "wlp0s20f0u1")
+                    (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
 
            ;; This is the default list of services we
            ;; are appending to.
-           %desktop-services))
+           %desktop-services)))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
