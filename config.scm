@@ -13,7 +13,8 @@
 (use-modules (gnu services xorg))
 (use-modules (gnu services ssh))
 (use-modules (gnu services networking))
-(use-modules (gnu services desktop))
+(use-modules (gnu services admin))
+(use-modules (gnu services base))
 (use-modules (gnu services cups))
 (use-modules (gnu bootloader))
 (use-modules (gnu bootloader grub))
@@ -47,20 +48,15 @@
   ;; Packages installed system-wide.  Users can also install packages
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
-  (packages (append (list (specification->package "i3-wm")
-                          (specification->package "i3status")
-                          (specification->package "dmenu")
-                          (specification->package "st")
-                          (specification->package "emacs")
-                          (specification->package "emacs-exwm")
-                          (specification->package
-                           "emacs-desktop-environment")) %base-packages))
+  (packages (append (list (specification->package "vim")
+                          (specification->package "git")
+                          (specification->package "fish")
+                        %base-packages))
 
   ;; Below is the list of system services.  To search for available
   ;; services, run 'guix system search KEYWORD' in a terminal.
   (services
-   (append (list (service xfce-desktop-service-type)
-
+   (append (list
                  ;; To configure OpenSSH, pass an 'openssh-configuration'
                  ;; record as a second argument to 'service' below.
                  (service openssh-service-type)
@@ -69,14 +65,14 @@
                   (xorg-configuration (keyboard-layout keyboard-layout)))
                  ;; Networking stuff
                  (service dhcp-client-service-type)
-                 (wpa-supplicant-service-type config =>
+                 (wpa-supplicant-service-type
                    (wpa-supplicant-configuration
                     (interface "wlp0s20f0u1")
                     (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
 
            ;; This is the default list of services we
            ;; are appending to.
-           %desktop-services)))
+           %base-services)))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
