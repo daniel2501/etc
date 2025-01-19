@@ -1,5 +1,4 @@
-#!/bin/bash
-mkdir /etc/wpa_supplicant
+mkdir /mnt/etc/wpa_supplicant
 cp wpa_supplicant.conf /mnt/etc/wpa_supplicant/
 cp etc/config.v3.scm /mnt/etc/
 cp etc/channels.scm /mnt/etc/
