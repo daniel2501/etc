@@ -1,5 +1,4 @@
 #!/bin/bash
-git clone https://github.com/daniel2501/etc.git
 mkdir /etc/wpa_supplicant
 cp wpa_supplicant.conf /mnt/etc/wpa_supplicant/
 cp etc/config.v3.scm /mnt/etc/
