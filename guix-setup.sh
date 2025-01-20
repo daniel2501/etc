@@ -5,4 +5,4 @@ cp /mnt/etc/config.scm config.installer.scm
 cp config.v3.scm config.edit.scm
 echo "Please edit ./config.edit.scm to have the disk uuids from ./config.installer.scm"
 # Open vim with both files
-vim -o config.v3.scm config.edit.scm
+vim -o config.edit.scm config.installer.scm
