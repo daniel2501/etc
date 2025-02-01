@@ -37,7 +37,7 @@
   (packages (append (list (specification->package "wpa-supplicant")
                           (specification->package "git")
                           (specification->package "vim")
-			  (specification->package "fish"))
+                          (specification->package "fish"))
                     %base-packages))
 
   ;; Below is the list of system services.  To search for available
@@ -49,19 +49,20 @@
                  ;; record as a second argument to 'service' below.
                  (service openssh-service-type)
                  (service tor-service-type)
-                 (service dhcp-client-service-type
-		  (dhcp-client-configuration
-                   (interface "wlp0s20f3")))
-                 (service ntp-service-type)
-                 (service cups-service-type)
-                 (service wpa-supplicant-service-type
-                  (wpa-supplicant-configuration
-                   (interface "wlp0s20f3")
-                   (config-file "/etc/wpa_supplicant/wpa_supplicant.conf"))))
-
            ;; This is the default list of services we
            ;; are appending to.
-           %base-services))
+           (modify-services %base-services
+            (dhcp-client-service-type
+             config =>
+              (dhcp-client-configuration
+               (interfaces '("wlp0s20f3"))))
+            (wpa-supplicant-service-type
+             config =>
+              (wpa-supplicant-configuration
+               (interface "wlp0s20f3")
+               (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
+            ))))
+
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
