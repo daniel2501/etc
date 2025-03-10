@@ -9,23 +9,24 @@
 
 ;; Indicate which modules to import to access the variables
 ;; used in this configuration.
-(use-modules (nongnu packages linux) (nongnu system linux-initrd))
-(use-modules (gnu services xorg))
-(use-modules (gnu services ssh))
-(use-modules (gnu services networking))
-(use-modules (gnu services admin))
-(use-modules (gnu services base))
-(use-modules (gnu services cups))
-(use-modules (gnu bootloader))
-(use-modules (gnu bootloader grub))
-(use-modules (gnu packages shells))
-(use-modules (gnu system keyboard))
-(use-modules (gnu system file-systems))
-(use-modules (gnu home)
-             (gnu packages)
-             (gnu services)
-             (guix gexp))
-;; (use-service-modules cups desktop networking ssh xorg)
+(use-modules (gnu) (nongnu packages linux))
+(use-service-modules cups desktop admin networking ssh xorg)
+(use-package-modules shells)
+
+;;(define %guix-0-services
+;;          (modify-services %base-services
+;;            (dhcp-client-service-type
+;;             config =>
+;;              (dhcp-client-configuration
+;;	       (inherit config)
+;;               (interfaces '("wlp0s20f3"))))
+;;            (wpa-supplicant-service-type
+;;             config =>
+;;              (wpa-supplicant-configuration
+;;               (inherit config)
+;;               (interface "wlp0s20f3")
+;;               (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
+;;  ))
 
 (operating-system
   (kernel linux)
@@ -42,56 +43,76 @@
                   (group "users")
                   (home-directory "/home/daniel")
                   (shell (file-append fish "/bin/fish"))
-                  (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                  (supplementary-groups '("wheel" "netdev" "audio" "video" "lp")))
                 %base-user-accounts))
 
   ;; Packages installed system-wide.  Users can also install packages
   ;; under their own account: use 'guix search KEYWORD' to search
   ;; for packages and 'guix install PACKAGE' to install a package.
-  (packages (append (list (specification->package "vim")
+  (packages (append (list (specification->package "wpa-supplicant")
                           (specification->package "git")
+                          (specification->package "vim")
                           (specification->package "fish")
-                        %base-packages))
+                          (specification->package "gcc-toolchain")
+			  (specification->package "gcc-toolchain")
+		          (specification->package "glibc")
+		          (specification->package "perl")
+		          (specification->package "libtool")
+		       	  (specification->package "libvterm")
+                          (specification->package "emacs-vterm")
+                          (specification->package "cmake")
+                          (specification->package "make")
+                          (specification->package "blueman")
+                          (specification->package "bluez")
+                          (specification->package "brightnessctl")
+                          (specification->package "emacs")
+                          (specification->package "curl")
+                          (specification->package "vim")
+                          (specification->package "fd")
+                          (specification->package "findutils")
+                          (specification->package "ripgrep")
+                          (specification->package "git")
+                          (specification->package "tar"))
+                    %base-packages))
 
   ;; Below is the list of system services.  To search for available
   ;; services, run 'guix system search KEYWORD' in a terminal.
   (services
-   (append (list
-                 ;; To configure OpenSSH, pass an 'openssh-configuration'
-                 ;; record as a second argument to 'service' below.
-                 (service openssh-service-type)
+   (append (list 
+                ;; (service dhcp-client-service-type
+		;;  (dhcp-client-configuration
+                ;;   (interfaces '("wlp0s20f3"))))
+                ;; (service ntp-service-type)
                  (service cups-service-type)
-                 (set-xorg-configuration
-                  (xorg-configuration (keyboard-layout keyboard-layout)))
-                 ;; Networking stuff
-                 (service dhcp-client-service-type)
-                 (wpa-supplicant-service-type
-                   (wpa-supplicant-configuration
-                    (interface "wlp0s20f0u1")
-                    (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
-
+                 (service openssh-service-type)
+                 (service bluetooth-service-type)
+                ;; (service wpa-supplicant-service-type
+                ;;  (wpa-supplicant-configuration
+                ;;   (interface "wlp0s20f3")
+                ;;   (config-file "/etc/wpa_supplicant/wpa_supplicant.conf")))
+		 )
            ;; This is the default list of services we
            ;; are appending to.
-           %base-services)))
+           (modify-services %desktop-services
+            (delete gdm-service-type)))
+   )
+
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))
                 (keyboard-layout keyboard-layout)))
-  (swap-devices (list (swap-space
-                        (target (uuid
-                                 "38dffc67-e4e2-42e3-960b-8afbdc5e6f9a")))))
 
   ;; The list of file systems that get "mounted".  The unique
   ;; file system identifiers there ("UUIDs") can be obtained
   ;; by running 'blkid' in a terminal.
   (file-systems (cons* (file-system
+                         (mount-point "/")
+                         (device (uuid
+                                  "1fe7d7a5-d70b-4e58-8c06-da7857102534"
+                                  'ext4))
+                         (type "ext4"))
+                       (file-system
                          (mount-point "/boot/efi")
                          (device (uuid "940C-1337"
                                        'fat32))
-                         (type "vfat"))
-                       (file-system
-                         (mount-point "/")
-                         (device (uuid
-                                  "9abc887c-40e9-4c20-8e14-c9a503b315a3"
-                                  'ext4))
-                         (type "ext4")) %base-file-systems)))
+                         (type "vfat")) %base-file-systems)))
